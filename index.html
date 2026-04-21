@@ -187,7 +187,12 @@
         <span class="badge bg-danger text-white">Poke-Randomizer</span>
       </h1>
 
-      <button class="btn btn-generar mb-4" @click="generarRandom">
+      <p v-if="cargandoCache" class="text-muted">⏳ Cargando Pokédex...</p>
+      <button
+        class="btn btn-generar mb-4"
+        @click="generarRandom"
+        :disabled="cargandoCache"
+      >
         Escanea la zona por un pokémon.
       </button>
 
@@ -242,22 +247,19 @@
           return {
             numero: null,
             nombrePokemon: "",
-            pokemonPNG: "", // ✅ declarada en data()
+            pokemonPNG: "",
             pokemonCache: {},
             pokemonCry: "",
             reproduciendo: false,
+            cargandoCache: false, // ← agrega esto
           };
         },
-        async inicializarCache() {
-          const guardado = localStorage.getItem("pokemonCache");
-          if (guardado) {
-            this.pokemonCache = JSON.parse(guardado);
-            return;
-          }
-          this.cargandoCache = true; // ← activa
-          // ... resto del método ...
-          this.cargandoCache = false; // ← desactiva al terminar
+
+        async mounted() {
+          // ← agrega esto
+          await this.inicializarCache();
         },
+
         methods: {
           async inicializarCache() {
             const guardado = localStorage.getItem("pokemonCache");
@@ -265,6 +267,7 @@
               this.pokemonCache = JSON.parse(guardado);
               return;
             }
+            this.cargandoCache = true;
             const promesas = [];
             for (let i = 1; i <= 150; i++) {
               promesas.push(
@@ -284,7 +287,9 @@
               "pokemonCache",
               JSON.stringify(this.pokemonCache),
             );
+            this.cargandoCache = false;
           },
+
           reproducirCry() {
             const audio = this.$refs.audioCry;
             audio.currentTime = 0;
@@ -295,10 +300,12 @@
               this.reproduciendo = false;
             };
           },
+
           async generarRandom() {
             this.numero = Math.floor(Math.random() * 150) + 1;
             await this.cargarNombrePokemon(this.numero);
           },
+
           async cargarNombrePokemon(id) {
             if (this.pokemonCache[id]) {
               this.nombrePokemon = this.pokemonCache[id].nombre;
@@ -314,7 +321,6 @@
               this.nombrePokemon = data.name;
               this.pokemonPNG = data.sprites.front_default;
               this.pokemonCry = data.cries.legacy;
-              // ✅ Guardamos ambos valores en el cache
               this.pokemonCache[id] = {
                 nombre: data.name,
                 imagen: data.sprites.front_default,
