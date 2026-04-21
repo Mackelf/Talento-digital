@@ -9,6 +9,15 @@
     />
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
+      body {
+        background-color: #f0f4f8;
+        background-image: radial-gradient(#d1d9e6 2px, transparent 2px);
+        background-size: 30px 30px;
+      }
+      h1 {
+        
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
       .pokeball-card {
         max-width: 360px;
         margin: 0 auto;
@@ -104,10 +113,14 @@
   </head>
 
   <body
-    class="bg-light d-flex flex-column align-items-center justify-content-center min-vh-100"
+    class="d-flex flex-column align-items-center justify-content-center min-vh-100"
   >
     <div id="app" class="text-center w-100 px-3">
-      <h2 class="mb-4 fw-bold">Generador Pokémon Aleatorio</h2>
+      <h1 class="mb-4 fw-bold">
+        <span class="badge  bg-danger text-white"
+          >Poke-Randomizer</span
+        >
+      </h1>
 
       <button class="btn btn-generar mb-4" @click="generarRandom">
         ⚡ Generar Número Random
@@ -194,12 +207,12 @@
               const data = await response.json();
               this.nombrePokemon = data.name;
               this.pokemonPNG = data.sprites.front_default;
-              this.pokemonCry = data.cries.latest;
+              this.pokemonCry = data.cries.legacy;
               // ✅ Guardamos ambos valores en el cache
               this.pokemonCache[id] = {
                 nombre: data.name,
                 imagen: data.sprites.front_default,
-                cry: data.cries.latest,
+                cry: data.cries.legacy,
               };
             } catch (error) {
               this.nombrePokemon = `Pokémon ${id} (error de carga)`;
@@ -210,6 +223,4 @@
       }).mount("#app");
     </script>
   </body>
-  <<<<<<< HEAD:index.html >>>>>>> ec957ec (BootCamp Randomizer) ======= >>>>>>>
-  ce63ec7 (update. control audio):Index.html
 </html>
