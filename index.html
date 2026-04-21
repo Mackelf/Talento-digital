@@ -248,7 +248,43 @@
             reproduciendo: false,
           };
         },
+        async inicializarCache() {
+          const guardado = localStorage.getItem("pokemonCache");
+          if (guardado) {
+            this.pokemonCache = JSON.parse(guardado);
+            return;
+          }
+          this.cargandoCache = true; // ← activa
+          // ... resto del método ...
+          this.cargandoCache = false; // ← desactiva al terminar
+        },
         methods: {
+          async inicializarCache() {
+            const guardado = localStorage.getItem("pokemonCache");
+            if (guardado) {
+              this.pokemonCache = JSON.parse(guardado);
+              return;
+            }
+            const promesas = [];
+            for (let i = 1; i <= 150; i++) {
+              promesas.push(
+                fetch(`https://pokeapi.co/api/v2/pokemon/${i}`)
+                  .then((r) => r.json())
+                  .then((data) => {
+                    this.pokemonCache[i] = {
+                      nombre: data.name,
+                      imagen: data.sprites.front_default,
+                      cry: data.cries.legacy,
+                    };
+                  }),
+              );
+            }
+            await Promise.all(promesas);
+            localStorage.setItem(
+              "pokemonCache",
+              JSON.stringify(this.pokemonCache),
+            );
+          },
           reproducirCry() {
             const audio = this.$refs.audioCry;
             audio.currentTime = 0;
