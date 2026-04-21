@@ -86,7 +86,7 @@
         }
       }
       .pokeball-card {
-        max-width: 360px;
+        max-width: 450px;
         margin: 0 auto;
         border-radius: 20px;
         overflow: hidden;
@@ -176,6 +176,23 @@
         image-rendering: pixelated;
         filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.3));
       }
+
+      .pokemon-stats {
+        text-align: left;
+        padding: 0 8px;
+      }
+
+      .stat-bar-bg {
+        background: #e0e0e0;
+        border-radius: 4px;
+        height: 10px;
+        overflow: hidden;
+      }
+      .stat-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.4s ease;
+      }
     </style>
   </head>
 
@@ -195,6 +212,89 @@
       >
         Escanea la zona por un pokémon.
       </button>
+
+      <!-- Filtro de generación -->
+      <div class="d-flex justify-content-center gap-2 mb-4">
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 1 && genSeleccionada.max === 151 }"
+          @click="genSeleccionada = { min: 1, max: 151 }"
+        >
+          Gen I
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 152 && genSeleccionada.max === 251 }"
+          @click="genSeleccionada = { min: 152, max: 251 }"
+        >
+          Gen II
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 252 && genSeleccionada.max === 386 }"
+          @click="genSeleccionada = { min: 252, max: 386 }"
+        >
+          Gen III
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 387 && genSeleccionada.max === 493 }"
+          @click="genSeleccionada = { min: 387, max: 493 }"
+        >
+          Gen IV
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 494 && genSeleccionada.max === 649 }"
+          @click="genSeleccionada = { min: 494, max: 649 }"
+        >
+          Gen V
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 650 && genSeleccionada.max === 721 }"
+          @click="genSeleccionada = { min: 650, max: 721 }"
+        >
+          Gen VI
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 722 && genSeleccionada.max === 809 }"
+          @click="genSeleccionada = { min: 722, max: 809 }"
+        >
+          Gen VII
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 810 && genSeleccionada.max === 905 }"
+          @click="genSeleccionada = { min: 810, max: 905 }"
+        >
+          Gen VIII
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 906 && genSeleccionada.max === 1025 }"
+          @click="genSeleccionada = { min: 906, max: 1025 }"
+        >
+          Gen IX
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          :class="{ active: genSeleccionada.min === 1 && genSeleccionada.max === 1025 }"
+          @click="genSeleccionada = { min: 1, max: 1025 }"
+        >
+          Todas
+        </button>
+      </div>
 
       <!-- Card Pokéball -->
       <div v-if="numero !== null" class="pokeball-card">
@@ -221,6 +321,7 @@
           <!-- Reemplaza el <audio> actual -->
           <audio ref="audioCry" :src="pokemonCry"></audio>
           <button
+            v-if="pokemonCry"
             class="btn-cry mt-3"
             @click="reproducirCry"
             :class="{ playing: reproduciendo }"
@@ -230,6 +331,33 @@
               <span></span><span></span><span></span><span></span><span></span>
             </span>
           </button>
+          <hr />
+          <table class="table table-borderless table-sm mt-3 mb-0">
+            <tbody>
+              <tr v-for="stat in pokemonStats" :key="stat.stat.name">
+                <td
+                  class="text-end text-muted fw-semibold small"
+                  style="width: 90px"
+                >
+                  {{ stat.stat.name }}:
+                </td>
+                <td class="fw-bold small" style="width: 36px">
+                  {{ stat.base_stat }}
+                </td>
+                <td>
+                  <div class="stat-bar-bg">
+                    <div
+                      class="stat-bar-fill"
+                      :style="{
+              width: (stat.base_stat / 150 * 100) + '%',
+              background: stat.base_stat > 80 ? '#22e300' : stat.base_stat > 50 ? '#f5a623' : '#e3000f'
+            }"
+                    ></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -250,8 +378,10 @@
             pokemonPNG: "",
             pokemonCache: {},
             pokemonCry: "",
+            pokemonStats: [],
             reproduciendo: false,
             cargandoCache: false, // ← agrega esto
+            genSeleccionada: { min: 1, max: 151 },
           };
         },
 
@@ -269,7 +399,7 @@
             }
             this.cargandoCache = true;
             const promesas = [];
-            for (let i = 1; i <= 150; i++) {
+            for (let i = 1; i <= 1025; i++) {
               promesas.push(
                 fetch(`https://pokeapi.co/api/v2/pokemon/${i}`)
                   .then((r) => r.json())
@@ -277,7 +407,8 @@
                     this.pokemonCache[i] = {
                       nombre: data.name,
                       imagen: data.sprites.front_default,
-                      cry: data.cries.legacy,
+                      cry: data.cries.latest,
+                      stats: data.stats,
                     };
                   }),
               );
@@ -302,7 +433,8 @@
           },
 
           async generarRandom() {
-            this.numero = Math.floor(Math.random() * 150) + 1;
+            const { min, max } = this.genSeleccionada;
+            this.numero = Math.floor(Math.random() * (max - min + 1)) + min;
             await this.cargarNombrePokemon(this.numero);
           },
 
@@ -311,6 +443,7 @@
               this.nombrePokemon = this.pokemonCache[id].nombre;
               this.pokemonPNG = this.pokemonCache[id].imagen;
               this.pokemonCry = this.pokemonCache[id].cry;
+              this.pokemonStats = this.pokemonCache[id].stats;
               return;
             }
             try {
@@ -318,13 +451,15 @@
                 `https://pokeapi.co/api/v2/pokemon/${id}`,
               );
               const data = await response.json();
+              this.pokemonStats = data.stats;
               this.nombrePokemon = data.name;
               this.pokemonPNG = data.sprites.front_default;
-              this.pokemonCry = data.cries.legacy;
+              this.pokemonCry = data.cries.latest;
               this.pokemonCache[id] = {
                 nombre: data.name,
                 imagen: data.sprites.front_default,
-                cry: data.cries.legacy,
+                cry: data.cries.latest || data.cries.legacy || "",
+                stats: data.stats,
               };
             } catch (error) {
               this.nombrePokemon = `Pokémon ${id} (error de carga)`;
