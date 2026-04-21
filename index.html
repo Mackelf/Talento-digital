@@ -188,7 +188,7 @@
       </h1>
 
       <button class="btn btn-generar mb-4" @click="generarRandom">
-        ⚡ Generar Número Random
+        Escanea la zona por un pokémon.
       </button>
 
       <!-- Card Pokéball -->
@@ -252,6 +252,7 @@
           reproducirCry() {
             const audio = this.$refs.audioCry;
             audio.currentTime = 0;
+            audio.volume = 0.3;
             audio.play();
             this.reproduciendo = true;
             audio.onended = () => {
